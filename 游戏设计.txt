@@ -1,0 +1,39 @@
+本文档基本依照线性流程
+game_on = 0, press "up" to enter
+
+game_on=0 -> big text main back
+
+game_on=1 -> small text as the backg of set and introduction 
+	stage0_case = 0, main menu interface
+
+	stage0_case = 1, set interface: press "up" or "down" to adjust the difficulty(easy, medium, difficult)
+
+	stage0_case = 2, "ready to start?" 
+
+	stage0_case = 3, introduction interface	
+
+	when in case except 0, press "left" to come back 0
+
+	when in case 2, press "up" to start and switch to stage1
+
+	stage1_case = 0, 初始化，直接切换为1
+
+	stage1_case = 1，获取双方行动，玩家按下左下右后直接切换为2(预计需要增加等待)
+
+	stage1_case = 2，结算（扣血、记录出招、清空出招）直接切换为3
+
+	stage1_case = 3, 血量检测{
+
+		敌人死亡 -> 直接切换为stage2
+
+		玩家死亡 -> 直接切换为case4
+
+		else 继续游戏 -> 直接切换为case0
+	}
+
+	stage1_case = 4, 死亡界面，按下“left”清空记录并回到game_on = 0
+
+	stage2_case = 0, level +1, 按下“up”切换为case1
+
+	stage2_case = 1, 按下“up”切换为stage1
+
