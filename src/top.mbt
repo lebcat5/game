@@ -11,11 +11,9 @@ pub fn start() -> Unit {
   
 }
 pub fn update() -> Unit {
-  
+  game.click()
   game.srp()
-  
   game.draw()
-  
   game.music()
 }
 
@@ -26,123 +24,44 @@ pub fn update() -> Unit {
 //set界面逻辑
 //developer界面逻辑
 //填五关数值
-pub fn click_z(self:Game) -> Bool{
-
-  if @wasm4.get_gamepad(index=1).button_2 == true {
-    self.click_count+=5
-    if self.click_awa!=5{
-      music_button()
-    }
-    self.click_awa=5
-    
-    return false
-    }
-  else{
-    if self.click_awa==5{
-      self.click_awa=0
-      
-      return true
-      }
-    return false  
-    }
-}
-pub fn click_x(self:Game) -> Bool{
-
-  if @wasm4.get_gamepad(index=1).button_1 == true {
-    self.click_count+=6
-    if self.click_awa!=6{
-      music_button()
-    }
-    self.click_awa=6
-    
-    return false
-    }
-  else{
-    if self.click_awa==6{
-      self.click_awa=0
-      
-      return true
-      }
-    return false  
-    }
-}
-pub fn click_left(self:Game) -> Bool{
-
+pub fn click(self:Game) -> Unit{
+  let mut zc=0
   if @wasm4.get_gamepad(index=1).button_left == true {
-    self.click_count+=1
-    if self.click_awa!=1{
-      music_button()
-    }
-    self.click_awa=1
-    
-    return false
-    }
-  else{
-    if self.click_awa==1{
-      self.click_awa=0
-      
-      return true
-      }
-    return false  
-    }
-}
-pub fn click_down(self:Game) -> Bool{
-  if @wasm4.get_gamepad(index=1).button_down == true {
-    self.click_count+=2
-    if self.click_awa!=2{
-      music_button()
-    }
-    self.click_awa=2
-    
-    return false
-    }
-  else{
-    if self.click_awa==2{
-      self.click_awa=0
-      
-      return true
-      }
-    return false  
-    }
-}
-pub fn click_right(self:Game) -> Bool{  
-  if @wasm4.get_gamepad(index=1).button_right == true {
-    self.click_count+=3
-    if self.click_awa!=3{
-      music_button()
-    }
-    self.click_awa=3
-    
-    return false
-    }
-  else{
-    if self.click_awa==3{
-      self.click_awa=0
-      
-      return true
-      }
-    return false  
-    }
+    zc=1
   }
-pub fn click_up(self:Game) -> Bool{  
-  if @wasm4.get_gamepad(index=1).button_up == true {
-    self.click_count+=4
-    if self.click_awa!=4{
-      music_button()
-    }
-    self.click_awa=4
-    
-    return false
-    }
-  else{
-    if self.click_awa==4{
-      self.click_awa=0
-      
-      return true
-      }
-    return false  
-    }
+  else if @wasm4.get_gamepad(index=1).button_down == true {
+    zc=2
   }
+  else if @wasm4.get_gamepad(index=1).button_right == true {
+    zc=3
+  }
+  else if @wasm4.get_gamepad(index=1).button_up == true {
+    zc=4
+  }
+  else  if @wasm4.get_gamepad(index=1).button_2 == true {
+    zc=5
+  }
+  else if @wasm4.get_gamepad(index=1).button_1 == true {
+    zc=6
+  }
+  else{//没有键按下
+    if self.click_awa!=0{//按下并松开
+    
+      self.click=self.click_awa
+      self.click_awa=0
+    }
+    else{
+      self.click=0
+    }
+    return
+  }
+  //有键按下
+  if self.click_awa!=zc{//刚刚按下
+    self.click_awa=zc
+    music_button()
+  } 
+
+}
 
 let random_a:Int=392
 let random_c:Int=29261
@@ -151,7 +70,7 @@ pub fn random()->Int{
   if game.click_count>111111{
     game.click_count=random()
   }
-  return game.seed%100
+  return game.seed
   }
 
 pub fn random_range(start:Int,over:Int)->Int{

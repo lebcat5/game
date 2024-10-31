@@ -70,7 +70,7 @@ let text6 : StoryTexts = StoryTexts::{
 
 
 struct Texts{
-  x:Int
+  mut x:Int
   y:Int
   mut text:String
 }
@@ -83,6 +83,12 @@ pub fn draw(self : Texts) -> Unit {
 
 let turnText : Texts = Texts::{
   x:50,
+  y:38,
+  text:""
+}
+
+let hhtext: Texts = Texts::{
+  x:0,
   y:38,
   text:""
 }

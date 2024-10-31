@@ -18,13 +18,12 @@ pub fn draw(self : Game) -> Unit {
         i_back_down.y-=1
         }
       if self.tick%8==0{
-        i_back_up.y-=1
+        if i_back_up.y>0{i_back_up.y-=1}
         }
       if self.tick%11==0{
-        cloud1.y-=1
-        cloud2.y-=1
+        if cloud1.y>90{cloud1.y-=1}
+        if cloud2.y>95{cloud2.y-=1}
       }
-
     }
     else{if self.tick%120<=60{
       fan.draw()
@@ -70,21 +69,17 @@ pub fn draw(self : Game) -> Unit {
       i_back_down.y+=1
       }
       if self.tick%8==0{
-        i_back_up.y+=1
+        if i_back_up.y<30{i_back_up.y+=1}
       }
       if self.tick%11==0{
-        cloud1.y+=1
-        cloud2.y+=1
+        if cloud1.y<110{cloud1.y+=1}
+        if cloud2.y<115{cloud2.y+=1}
       }
     }
     else{
     @wasm4.set_draw_colors(0,index=4)//半透明硬币
     coin1.draw()
-    if coin1.x<108 || coin1.x>156{
-      move(coin1,1,self.tick,2)
-    }
-    else if game.tick%3==0{
-      move(coin1,1,self.tick,3)
+    if coin1.x>108 && coin1.x<156 && game.tick%3==0{
       coin1.y+=random_range(-3,3)
       if coin1.y<10{
         coin1.y+=2
@@ -92,8 +87,9 @@ pub fn draw(self : Game) -> Unit {
       else if coin1.y>40{
         coin1.y-=2
       }
-    
     }
+    move(coin1,1,self.tick,1)
+    
     
     @wasm4.set_draw_colors(4,index=4)
     xline(1,116,5,1)
@@ -158,7 +154,8 @@ pub fn draw(self : Game) -> Unit {
       hp_pos[2]-=1
       }
       fill(7,3,hp_pos[2]+2,4,1)
-      fill(7,3,(self.enemy.hp-100)/2+2,4,3)
+      fill(7,3,(self.enemy.hp-100)/2+2,4,2)
+      fill(8,4,50,2,3)
     }
     
     for i = 0; i < 5; i = i + 1 {
@@ -223,6 +220,18 @@ pub fn draw(self : Game) -> Unit {
 
     falling.draw()//顶部动画and文字
     turnText.draw()
+    if hhtext.x<55{
+      hhtext.x+=(60-hhtext.x)/8+1
+    }
+    else if hhtext.x<65{
+      if game.tick%2==0{
+      hhtext.x+=1
+      }
+    }
+    else if hhtext.x<160{
+      hhtext.x-=(60-hhtext.x)/8-1
+    }
+    hhtext.draw()
     if game.stage2_case == 2 {
       texts[game.level-1].draw()
     }
@@ -360,6 +369,14 @@ pub fn turnReset()-> Unit{
   mycoins.wf=2
   game.faceIndex=0
   turnText.text=""
+  hhtext.x=-50
+  hhtext.text="turn"+game.hh.to_string()
+}
+
+pub fn stageReset(me_hp:Int,enemy_hp:Int)-> Unit{
+  hp_pos[0]=me_hp/2
+  hp_pos[1]=50
+  hp_pos[2]=(enemy_hp-100)/2
 }
 
 fn summon_coin(num:Int,id:Bool) ->Unit{

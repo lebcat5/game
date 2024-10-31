@@ -1,31 +1,20 @@
 //剪刀石头布对应t的值
-pub fn scissors(self : Character) -> Unit {
-  self.t = 1
-}
-
-pub fn rock(self : Character) -> Unit {
-  self.t = 2
-}
-
-pub fn paper(self : Character) -> Unit {
-  self.t = 3
-}
 
 pub fn switch_from00(self : Game) -> Unit {
-  if self.click_left() {
+  if self.click==1 {
     self.stage0_case = 1 
   }
-  if self.click_down() {
+  if self.click==2 {
     self.stage0_case = 2 
   }
-  if self.click_right() {
+  if self.click==3 {
     self.stage0_case = 3 
   }
   
 }
 
 pub fn switch_to1(self : Game) -> Unit {
-  if (self.click_up()||self.click_down()||self.click_left()||self.click_right()||self.click_z()||self.click_x()) {
+  if self.click!=0 {
     self.stage = 1
     self.stage1_case = 0
     self.stage2_case = 0
@@ -43,11 +32,13 @@ pub fn switch_to2(self : Game) -> Unit {
 }
 
 pub fn switch_to00(self : Game) -> Unit {
-  if self.click_left() {
+  if self.click!=0 {
     self.stage1_case = 0
     self.stage = 0
     self.stage0_case = 0 
     self.level = 0
+    self.hh=0
+    self.initialize()
   }
 }
 
@@ -67,7 +58,7 @@ pub fn switch_to12(self : Game) -> Unit {
 
 pub fn switch_to13(self : Game) -> Unit {
   self.stuck = 60
-  winAndFail(self.influ.fw)
+  winAndFail(self.fw)
   self.stage1_case = 3
 }
 
