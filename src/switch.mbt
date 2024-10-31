@@ -31,10 +31,10 @@ pub fn switch_to2(self : Game) -> Unit {
   self.stage = 2
 }
 
-pub fn switch_to00(self : Game) -> Unit {
+pub fn switch_tof1(self : Game) -> Unit {
   if self.click!=0 {
     self.stage1_case = 0
-    self.stage = 0
+    self.stage = -1
     self.stage0_case = 0 
     self.level = 0
     self.hh=0

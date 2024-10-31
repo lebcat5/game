@@ -1,7 +1,11 @@
 pub fn srp(self : Game) -> Unit {
+  if self.click==6{
+    self.stage=-1
+    self.click=0
+  }
   if self.stuck == 0 {
     if self.stage == -1 {
-      if self.click!=0 {self.stage = 0}
+      self.switch_fromf1()
     } else if self.stage == 0 {
       self.switch_from0()
     } else if self.stage == 1 {
@@ -22,6 +26,12 @@ pub fn initialize(self : Game) -> Unit {
 }
 
 //结束stage0后case是否归0: 是
+pub fn switch_fromf1(self : Game) -> Unit {
+  if self.click!=0 {
+      self.stage = 0 
+      self.stage0_case=0
+      }
+}
 pub fn switch_from0(self : Game) -> Unit {
   if self.stage0_case == 0 {
     self.switch_from00() //跳转逻辑
@@ -30,8 +40,10 @@ pub fn switch_from0(self : Game) -> Unit {
     //self.switch_to00() //
     self.logic_exit()
   } else if self.stage0_case == 2 { //***开始游戏***
+    self.hh=0
     self.stage=1
     self.stage2_case=0
+    self.stage1_case=0
   } else if self.stage0_case == 3 {
     self.logic_exit()
   }
@@ -61,7 +73,7 @@ pub fn switch_from1(self : Game) -> Unit {
     self.hp_detect()
     
   } else if self.stage1_case == 4 {//玩家gg
-    self.switch_to00()
+    self.switch_tof1()
     
   }
 }
@@ -89,7 +101,7 @@ pub fn switch_from2(self : Game) -> Unit {
 pub fn enhance(self : Game) -> Unit {
   //获取一种固定的增强 level+=1
   
-  set_fall(self.level+1,72,14,-0.54+0.27*(self.level).to_double(),-0.5)
+  falling.set_fall(self.level+1,72,14,-0.54+0.27*(self.level).to_double(),-0.5)
   
   self.stage2_case = 1
 }
@@ -159,11 +171,12 @@ pub fn round_outcome(self : Game) -> Unit {
 
   if enWin==0 {
     self.fw = 0 //平局
-    self.enemy.hp -= self.me.attack / 2
-    self.me.hp -= self.enemy.attack / 2
+    self.enemy.hp -= 5
+    self.me.hp -= 5
     if self.level>=3{
       self.me.anger(1)
     }
+    set_damage(5,false)
   } else if enWin==-1 {
     self.fw = -1 //敌人失败
     self.enemy.hp -= self.me.dam_calculate()
@@ -184,14 +197,20 @@ pub fn round_outcome(self : Game) -> Unit {
       self.me.anger(1)
     }
   }
+  if self.enemy.hp<0{
+      self.enemy.hp=0
+    }
+  if self.me.hp<0{
+      self.me.hp=0
+    }
 }
 
 pub fn hp_detect(self : Game) -> Unit {
-  if self.enemy.hp <= 0 { //***敌人死亡***
-    self.enemy.hp = 0
+  if self.enemy.hp == 0 { //***敌人死亡***
+    winAndFail(-2)
     self.switch_to2()
-  } else if self.enemy.hp > 0 && self.me.hp <= 0 { //***角色死亡***
-    self.me.hp = 0
+  } else if self.me.hp == 0 { //***角色死亡***
+    winAndFail(2)
     self.switch_to14()
   } else {
     //***继续游戏***
@@ -228,6 +247,7 @@ pub fn dam_calculate(self : Character) -> Int {
   let mut damage : Int = self.attack
   let mut zc_crit = self.critRate//先减伤再枪的增伤再暴击
   let mut zc_crit_damage = self.critDamage
+  let mut crited:Bool=false
   if self.anger > 0 {
     damage += self.anger*2
   }
@@ -237,13 +257,15 @@ pub fn dam_calculate(self : Character) -> Int {
 
   if self.t==4{
     damage*=2
-    zc_crit_damage=3
+    zc_crit_damage+=1
   }//gun
 
   //boost
 
-  if random() > zc_crit { //c random()
+  if random()%100 < zc_crit { //c random()
     damage *= zc_crit_damage
+    crited=true
   }//crit
+  set_damage(damage,crited)
   return damage
 }

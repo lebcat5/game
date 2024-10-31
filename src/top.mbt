@@ -38,10 +38,10 @@ pub fn click(self:Game) -> Unit{
   else if @wasm4.get_gamepad(index=1).button_up == true {
     zc=4
   }
-  else  if @wasm4.get_gamepad(index=1).button_2 == true {
+  else  if @wasm4.get_gamepad(index=1).button_1 == true {
     zc=5
   }
-  else if @wasm4.get_gamepad(index=1).button_1 == true {
+  else if @wasm4.get_gamepad(index=1).button_2 == true {//z
     zc=6
   }
   else{//没有键按下

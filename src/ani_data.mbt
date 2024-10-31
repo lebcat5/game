@@ -134,7 +134,7 @@ pub fn draw(self : Coin) -> Unit {
   let mut i = self.num
   while i>0{
     i-=1
-    if self.wf!=2{
+    if self.wf!=2 && self.wf!=-2{
       if self.x[i]<80 && game.tick%8==0{
         self.x[i]+=1
       }
@@ -447,15 +447,17 @@ let fires:Array[Image] = [fire1,fire2,fire3,fire4,fire5]
   
 struct Fall {
   mut id : Int
+  mut text : String
   mut x : Double
   mut y : Double
   mut x_speed:Double
   mut y_speed:Double
-  g:Double
+  mut g:Double
 }
 
 let falling : Fall = Fall::{
   id : 0,
+  text: "",
   x: 0,
   y: 0,
   x_speed:0,
@@ -463,19 +465,51 @@ let falling : Fall = Fall::{
   g: 0.02
 }
 
-pub fn set_fall(id:Int,x:Double,y:Double,x_speed:Double,y_speed:Double) -> Unit{
-  falling.id=id
-  falling.x=x
-  falling.y=y
-  falling.x_speed=x_speed
-  falling.y_speed=y_speed
+let damageText : Fall = Fall::{
+  id : 0,
+  text: "",
+  x: 0,
+  y: 0,
+  x_speed:0,
+  y_speed:0,
+  g: 0.02
+}
+
+let critText : Fall = Fall::{
+  id : 0,
+  text: "",
+  x: 0,
+  y: 0,
+  x_speed:0,
+  y_speed:0,
+  g: 0.02
+}
+
+pub fn set_fall(self:Fall,id:Int,x:Double,y:Double,x_speed:Double,y_speed:Double) -> Unit{
+  self.id=id
+  self.x=x
+  self.y=y
+  self.x_speed=x_speed
+  self.y_speed=y_speed
+}
+
+pub fn set_fall2(self:Fall,text:String,x:Double,y:Double,x_speed:Double,y_speed:Double,g:Double) -> Unit{
+  self.text=text
+  self.x=x
+  self.y=y
+  self.x_speed=x_speed
+  self.y_speed=y_speed
+  self.g=g
 }
 pub fn draw(self:Fall) -> Unit{
-  if self.y>92 {return}
-  @wasm4.set_draw_colors(0,index=2)
+  
   self.x+=self.x_speed
   self.y+=self.y_speed
   self.y_speed+=self.g
+  if self.text==""{
+    if self.y>92 {return}
+  @wasm4.set_draw_colors(0,index=2)
+  
   let mut x:Image =boost1
   if self.id==0{
     @wasm4.set_draw_colors(2,index=2)
@@ -505,6 +539,15 @@ pub fn draw(self:Fall) -> Unit{
       { one_bit_per_pixel: false, flip_x: false, flip_y: false, rotate: false },
     )
   @wasm4.set_draw_colors(2,index=2)
+  }
+  else{
+    @wasm4.set_draw_colors(3,index=1)
+    @wasm4.set_draw_colors(0,index=2)
+    @wasm4.text(self.text,(self.x).to_int(),(self.y).to_int())
+    @wasm4.set_draw_colors(1,index=1)
+    @wasm4.set_draw_colors(2,index=2)
+
+  }
 }
 
 

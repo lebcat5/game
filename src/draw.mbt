@@ -69,7 +69,7 @@ pub fn draw(self : Game) -> Unit {
       i_back_down.y+=1
       }
       if self.tick%8==0{
-        if i_back_up.y<30{i_back_up.y+=1}
+        if i_back_up.y<32{i_back_up.y+=1}
       }
       if self.tick%11==0{
         if cloud1.y<110{cloud1.y+=1}
@@ -126,7 +126,7 @@ pub fn draw(self : Game) -> Unit {
     @wasm4.set_draw_colors(4,index=4)//半透明火
     
     //我方属性
-    if self.me.hp/2!=hp_pos[0] && self.tick%3==0{
+    if self.me.hp/2!=hp_pos[0] && self.tick%3==0 && hp_pos[0]>0{
       hp_pos[0]-=1
     }
     fill(8,81,hp_pos[0],2,1)
@@ -134,23 +134,23 @@ pub fn draw(self : Game) -> Unit {
     for i = 0; i < 5; i = i + 1 {
       fill(10+5*i,73,2,2,2)
       if i<game.me.anger{
-        outline(9+5*i,72,4,4,1,2)
+        fill(9+5*i,72,4,4,3)
       }
       else if -i>game.me.anger{
-        outline(9+5*i,72,4,4,-1,1)
+        outline(9+5*i,72,4,4,1,2)
       }
     }
     
     
     if self.enemy.hp<=100{//敌人属性
-      if self.enemy.hp/2!=hp_pos[1] && self.tick%3==0{
-      hp_pos[1]-=1
+      if self.enemy.hp/2!=hp_pos[1] && self.tick%3==0 && hp_pos[1]>0{
+        hp_pos[1]-=1
       }
       fill(8,4,hp_pos[1],2,1)
       fill(8,4,self.enemy.hp/2,2,3)
     }
     else{
-      if (self.enemy.hp-100)/2!=hp_pos[2] && self.tick%3==0{
+      if (self.enemy.hp-100)/2!=hp_pos[2] && self.tick%3==0 && hp_pos[2]>0{
       hp_pos[2]-=1
       }
       fill(7,3,hp_pos[2]+2,4,1)
@@ -161,10 +161,10 @@ pub fn draw(self : Game) -> Unit {
     for i = 0; i < 5; i = i + 1 {
       fill(10+5*i,12,2,2,2)
       if i<game.enemy.anger{
-        outline(9+5*i,11,4,4,1,2)
+        fill(9+5*i,11,4,4,3)
       }
       else if -i>game.enemy.anger{
-        outline(9+5*i,11,4,4,-1,1)
+        outline(9+5*i,11,4,4,1,2)
       }
     }
 
@@ -219,8 +219,8 @@ pub fn draw(self : Game) -> Unit {
     }
 
     falling.draw()//顶部动画and文字
-    turnText.draw()
-    if hhtext.x<55{
+    turnText.draw()//回合输赢
+    if hhtext.x<55{//回合数
       hhtext.x+=(60-hhtext.x)/8+1
     }
     else if hhtext.x<65{
@@ -232,9 +232,11 @@ pub fn draw(self : Game) -> Unit {
       hhtext.x-=(60-hhtext.x)/8-1
     }
     hhtext.draw()
-    if game.stage2_case == 2 {
+    if game.stage2_case == 2 {//战败语言
       texts[game.level-1].draw()
     }
+    damageText.draw()
+    critText.draw()
     
   }
 }
@@ -290,6 +292,7 @@ pub fn outline(x:Int,y:Int,dx:Int,dy:Int,light:Int,depth:Int) -> Unit{
 }
 
 pub fn fill(x:Int,y:Int,dx:Int,dy:Int,color:UInt) -> Unit{
+  if dx==0 || dy==0 {return}
   @wasm4.set_draw_colors(color,index=1)
   @wasm4.set_draw_colors(color,index=2)
   @wasm4.rect(x,y,dx,dy)
@@ -347,7 +350,7 @@ pub fn myChoosing(skill:Int) -> Unit{
   }
 }
 
-pub fn winAndFail(wf:Int)-> Unit{//-1敌人负 0平局 1敌人胜利
+pub fn winAndFail(wf:Int)-> Unit{//-1敌人负 0平局 1敌人胜利 2玩家gg -2 敌人gg
   coins.wf=wf
   mycoins.wf=wf
   if wf==1{
@@ -362,21 +365,39 @@ pub fn winAndFail(wf:Int)-> Unit{//-1敌人负 0平局 1敌人胜利
     game.faceIndex=3
     turnText.text="you win"
   }
+  else if wf==2{
+    game.faceIndex=1
+    turnText.text="oh no~"
+  }
+  else if wf==-2{
+    game.faceIndex=4
+    turnText.text="you win!!!"
+  }
 }
 
 pub fn turnReset()-> Unit{
   coins.wf=2
   mycoins.wf=2
+  coins.num=0
+  mycoins.num=0
   game.faceIndex=0
   turnText.text=""
   hhtext.x=-50
   hhtext.text="turn"+game.hh.to_string()
+  
 }
 
 pub fn stageReset(me_hp:Int,enemy_hp:Int)-> Unit{
   hp_pos[0]=me_hp/2
   hp_pos[1]=50
   hp_pos[2]=(enemy_hp-100)/2
+}
+
+pub fn set_damage(damage:Int,crited:Bool) -> Unit{
+  damageText.set_fall2((-damage).to_string(),72,40,-1,0.5*(game.fw).to_double(),0)
+  if crited==true{
+    critText.set_fall2("Crit!!",72,40,random_range(-3,3).to_double()/8,-1,0.02)
+  }
 }
 
 fn summon_coin(num:Int,id:Bool) ->Unit{
