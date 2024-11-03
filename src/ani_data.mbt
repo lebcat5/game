@@ -10,8 +10,10 @@ struct StoryTexts {
 pub fn draw(self : StoryTexts) -> Unit {
   @wasm4.text(self.part, self.x, self.y)
   if game.tick%6== 0 {
-    if self.index<self.length{self.index+=1}
+    if self.index<self.length{
     self.part = "\{self.part}\{self.text[self.index]}"
+    self.index+=1
+    }
   }
 }
 
@@ -20,50 +22,50 @@ let texts : Array[StoryTexts] = [text1,text2,text3,text4,text5,text6]
 let text1 : StoryTexts = StoryTexts::{
   x : 3,
   y : 33,
-  length : 80,
+  length : 35,
   index : 0,
-  text : "Hum, again.\nYou won't have such\ngood luck next.\nThis is a reward.\nHere for you.",
-  part : "H",
+  text : "It's easy\nto see through me\n\nright?",
+  part : "",
   }
 let text2 : StoryTexts = StoryTexts::{
   x : 3,
   y : 33,
-  length : 46,
+  length : 26,
   index : 0,
-  text : "Just dump luck!\nI don't accept!\nAgainnnnnnn!",
-  part : "J",
+  text : "I will keep\nan eye on you.",
+  part : "",
   }
 let text3 : StoryTexts = StoryTexts::{
   x : 3,
   y : 33,
-  length : 93,
+  length : 46,
   index : 0,
-  text : "Maybe you reaaally\nhave a little strength.\nBut next,\nI'll do my best!\nYou have no chance!",
-  part : "M",
+  text : "I shouldn't\nhave turned back\nagain from now on",
+  part : "",
   }
 let text4 : StoryTexts = StoryTexts::{
   x : 3,
   y : 30,
-  length : 8,
+  length : 29,
   index : 0,
-  text : "Again!!!",
-  part : "A",
+  text : "You're about to\nform a combo.",
+  part : "",
   }
 let text5 : StoryTexts = StoryTexts::{
   x : 3,
   y : 33,
-  length : 92,
+  length : 24,
   index : 0,
-  text : "Thirty years east,\nthirty years west,\ndont u dare bully me\nbecause I'm poor now\n\nTHE END.",
-  part : "T",
+  text : "I'm going to\nbe serious.",
+  part : "",
   }
 let text6 : StoryTexts = StoryTexts::{
   x : 3,
   y : 30,
-  length : 59,
+  length : 48,
   index : 0,
-  text : "I lost,\nyou're very strong\nSo... can you\ngive me a star?",
-  part : "I",
+  text : "...\n\n\"he burned\"\n\nTHE END\n\nThank you for playing",
+  part : "",
   }
 
 
@@ -303,7 +305,14 @@ let face5 : Image = Image::{
   dy:8,
   image: @wasm4.sprite(b"\xef\xff\xfb\xfb\xff\xef\xfe\xff\xbf\xff\xff\xff\xff\xaa\xff\xfe\xff\xbf\xfe\xaa\xbf\x5f\xff\xff"),
 }
-let faces:Array[Image] = [face1,face2,face3,face4,face5]
+let face6 : Image = Image::{
+  x:74,
+  y:27,
+  dx:12,
+  dy:8,
+  image: @wasm4.sprite(b"\xff\xff\xff\xef\xff\xeb\xfa\xff\xbf\xff\xff\xff\xff\xff\xff\xff\xff\xbf\xff\xaa\xff\x5f\xff\xff"),
+}
+let faces:Array[Image] = [face1,face2,face3,face4,face5,face6]
 
 let i_back2: Image = Image::{
   x:0,
@@ -502,7 +511,8 @@ pub fn set_fall2(self:Fall,text:String,x:Double,y:Double,x_speed:Double,y_speed:
   self.g=g
 }
 pub fn draw(self:Fall) -> Unit{
-  
+  if self.y>160 || self.y<-40{return}
+  if self.x>160 || self.x<-40{return}
   self.x+=self.x_speed
   self.y+=self.y_speed
   self.y_speed+=self.g

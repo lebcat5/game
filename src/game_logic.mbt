@@ -21,8 +21,17 @@ pub fn srp(self : Game) -> Unit {
 pub fn initialize(self : Game) -> Unit {
   self.win_count=0
   self.fw = 0
+  self.faceIndex = 0 
+  self.scores = Scorecount::new()
+
+  self.me.t=random_range(1,3)
   self.me = Character::new()
+
   self.refresh_Enemy()
+  self.enemy_move=self.level
+
+  self.getskill() //上局收获
+  
 }
 
 //结束stage0后case是否归0: 是
@@ -38,7 +47,9 @@ pub fn switch_from0(self : Game) -> Unit {
   } else if self.stage0_case == 1 {
     //self.logic_set() //
     //self.switch_to00() //
-    self.logic_exit()
+    //self.logic_exit()
+    self.stage = 0
+    self.stage0_case = 0
   } else if self.stage0_case == 2 { //***开始游戏***
     self.hh=0
     self.stage=1
@@ -54,13 +65,27 @@ pub fn switch_from1(self : Game) -> Unit {
   if self.stage1_case == 0 {
     if (self.hh==0){self.prepare()}
     self.hh+=1
-    if self.level>=4{
-      self.enemy.hp-=1+self.win_count
+    turnReset()
+    self.scores.speed+=self.scores.turn_speed
+    self.scores.turn_speed=300
+
+    if self.level>=4{//沙漏
+      let zc=2+self.win_count*2
+      self.enemy.hp-=zc
+      if zc>self.scores.max_damage{
+        self.scores.max_damage=zc
+      }
+      set_damage(zc,false)
     }
     
-    turnReset()
     self.get_enemyMove()
-    self.switch_to11()
+    if self.enemy.hp>0{
+      self.switch_to11()
+    }
+    else{
+      self.stage1_case = 3
+    }
+    self.stuck=30
     //case1到case3为一个round
   } else if self.stage1_case == 1 {
     self.get_myMove()
@@ -81,39 +106,55 @@ pub fn switch_from1(self : Game) -> Unit {
 //结束stage2后case是否归0：是
 pub fn switch_from2(self : Game) -> Unit {
   if self.stage2_case == 0 {
-    
-    self.enhance()
-    self.stuck= 120
+    if self.level<=5{
+      falling.set_fall(self.level+1,72,14,-0.54+0.27*(self.level).to_double(),-0.5)
+      self.stuck= 120
+    }
+    self.stage2_case = 1
     
   } else if self.stage2_case == 1 {
     
+    self.scores.level_score=self.getscore()
+    if self.scores.level_score>self.score[self.level]{
+      self.score[self.level]=self.scores.level_score
+    }
     self.level +=1
+    
     self.stage2_case = 2
     
 
-  } else if self.stage2_case == 2 {
+  } else if self.stage2_case == 2 {//显示分数
     self.hh=0
+    
     self.switch_to1()
   }
 }
 
-
-pub fn enhance(self : Game) -> Unit {
-  //获取一种固定的增强 level+=1
-  
-  falling.set_fall(self.level+1,72,14,-0.54+0.27*(self.level).to_double(),-0.5)
-  
-  self.stage2_case = 1
+pub fn getscore(self:Game) -> Int{
+  let mut num=0
+  if self.hh<=10+2*self.level{
+    num+=120*(10+2*self.level-self.hh)
+  }
+  num+=self.me.hp*3
+  num+=self.scores.max_damage*5
+  num+=self.scores.speed/self.hh
+  num+=self.scores.rps_count[0]*20
+  num+=self.scores.rps_count[1]*15
+  num+=self.scores.rps_count[2]*10
+  num+=(self.scores.crit_count*500)/self.win_count
+  //let zc:Double=(num*self.level).to_double()*0.1
+  //num+=(zc).to_int()
+  return num
 }
 
 pub fn getskill(self : Game) -> Unit { //增益需要调整
-  if self.level == 1 {
-    self.me.critRate += 10
+  if self.level >= 1 {
+    self.me.critRate += 20
   }
-  if self.level == 2 {
+  if self.level >= 2 {
     self.enemy.attack -= 2
   }
-  if self.level == 5 {
+  if self.level >= 5 {
     self.me.critDamage += 1
   }
 }
@@ -133,17 +174,22 @@ pub fn logic_exit(self : Game) -> Unit {
 
 pub fn prepare(self : Game) -> Unit {
   self.initialize() //每局初始化
-  self.getskill() //上局收获
   stageReset(self.me.hp,self.enemy.hp)
 }
 
 pub fn get_myMove(self : Game) -> Unit {
+  if self.scores.turn_speed>0{
+    self.scores.turn_speed-=1
+  }
   if self.click==1 {
     self.me.t=1//剪刀
+    self.scores.rps_count[0]+=1
   } else if self.click==2 {
     self.me.t=2//石头
+    self.scores.rps_count[1]+=1
   } else if self.click==3 {
     self.me.t=3//布
+    self.scores.rps_count[2]+=1
   } else if self.click==4{
     self.me.t=4//枪
   }
@@ -173,13 +219,16 @@ pub fn round_outcome(self : Game) -> Unit {
     self.fw = 0 //平局
     self.enemy.hp -= 5
     self.me.hp -= 5
-    if self.level>=3{
-      self.me.anger(1)
-    }
     set_damage(5,false)
   } else if enWin==-1 {
     self.fw = -1 //敌人失败
-    self.enemy.hp -= self.me.dam_calculate()
+    let zc = self.me.dam_calculate(self.enemy,true)
+
+    if zc>self.scores.max_damage{
+      self.scores.max_damage=zc//最高伤害结算
+    }
+
+    self.enemy.hp -= zc
     self.enemy.anger(1)
     self.me.anger(-1)
     if self.level>=5{
@@ -190,7 +239,7 @@ pub fn round_outcome(self : Game) -> Unit {
     }
   } else if enWin==1{
     self.fw = 1 //敌人胜利
-    self.me.hp -= self.enemy.dam_calculate()
+    self.me.hp -= self.enemy.dam_calculate(self.me,false)
     self.me.anger(1)
     self.enemy.anger(-1)
     if self.level>=3{
@@ -224,10 +273,41 @@ pub fn get_enemyMove(self : Game) -> Unit {
     self.enemy.t=4
   }
   else{
-    self.enemy.t=random_range(1,3)/////之后修改
+    if (self.enemy_move==0) {
+      self.enemy.t=1
+    }
+    if (self.enemy_move==1) {
+      self.enemy.t= self.enemy.t%3+1
+    }
+    else if (self.enemy_move==2) {
+      self.enemy.t = self.me.t%3+1
+    }
+    else if (self.enemy_move==3) {
+      self.enemy.t = (self.enemy.t+random_range(0,1))%3+1
+    }
+    else if (self.enemy_move==4) {
+      if (self.fw!=-1){
+        self.enemy.t=self.enemy.t
+      }
+      else{
+      self.enemy.t = (self.enemy.t+random_range(0,1))%3+1
+      }
+    }
+    else if (self.enemy_move==5) {
+      if (self.fw==-1){
+        self.enemy.t = (self.enemy.t+random_range(0,1))%3+1
+      }
+      else if (self.fw==0) {
+        self.enemy.t = self.me.t%3+1
+      }
+      else if (self.fw==-1){
+        self.enemy.t=self.enemy.t
+      }
+    }
   }
   self.me.t=0//本来应该检测按键是否按下作为切换回合前进条件的
 }
+
 
 //计算无加成回合伤害
 pub fn anger(self : Character, num : Int) -> Unit { 
@@ -243,13 +323,20 @@ pub fn anger(self : Character, num : Int) -> Unit {
   }
 }
 
-pub fn dam_calculate(self : Character) -> Int {
+pub fn dam_calculate(self : Character,other:Character,id:Bool) -> Int {
   let mut damage : Int = self.attack
   let mut zc_crit = self.critRate//先减伤再枪的增伤再暴击
   let mut zc_crit_damage = self.critDamage
   let mut crited:Bool=false
+  let mut anger_per:Int=1
+  if game.hard>=2{
+    anger_per=2
+  }
   if self.anger > 0 {
-    damage += self.anger*2
+    damage += self.anger*2*anger_per
+    if game.level>=3 && id==true{
+      zc_crit+=5*self.anger*anger_per
+    }
   }
   else {
     zc_crit-=20*self.anger
@@ -265,7 +352,15 @@ pub fn dam_calculate(self : Character) -> Int {
   if random()%100 < zc_crit { //c random()
     damage *= zc_crit_damage
     crited=true
+    if id==true{
+      game.scores.crit_count+=1
+    }
   }//crit
+
+  if other.anger>0{
+    damage-=other.anger
+  }
+
   set_damage(damage,crited)
   return damage
 }

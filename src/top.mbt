@@ -55,6 +55,7 @@ pub fn click(self:Game) -> Unit{
     }
     return
   }
+  self.click_count+=zc
   //有键按下
   if self.click_awa!=zc{//刚刚按下
     self.click_awa=zc
@@ -66,8 +67,8 @@ pub fn click(self:Game) -> Unit{
 let random_a:Int=392
 let random_c:Int=29261
 pub fn random()->Int{
-  game.seed=(random_a*game.seed+random_c)%(game.click_count+111111)
-  if game.click_count>111111{
+  game.seed=(random_a*game.seed+random_c)%(game.click_count+113456)
+  if game.click_count>113456{
     game.click_count=random()
   }
   return game.seed

@@ -18,7 +18,7 @@ pub fn switch_to1(self : Game) -> Unit {
     self.stage = 1
     self.stage1_case = 0
     self.stage2_case = 0
-    if self.level == 5{
+    if self.level == 6{
     self.stage = -1
     self.level = 0
   } 
@@ -36,7 +36,6 @@ pub fn switch_tof1(self : Game) -> Unit {
     self.stage1_case = 0
     self.stage = -1
     self.stage0_case = 0 
-    self.level = 0
     self.hh=0
     self.initialize()
   }

@@ -6,9 +6,9 @@ struct Game {
   mut stage1_case : Int
   mut stage2_case : Int
   mut level : Int
-  mut hh:Int
-  mut win_count:Int//玩家胜利局数
-  mut fw:Int//记录敌人上把输赢
+  mut hh:Int //flash
+  mut win_count:Int//玩家胜利局数 flash
+  mut fw:Int//记录敌人上把输赢 flash
   
   mut click_awa : Int 
 
@@ -18,22 +18,19 @@ struct Game {
 
   mut index:Int
 
-  mut faceIndex:Int
+  mut faceIndex:Int //flash
 
   mut seed:Int
 
-  mut click:Int
+  mut click:Int 
 
+  mut hard:Int
+  mut enemy_move:Int
 
-}
+  score:Array[Int]
 
-struct Character {
-  mut hp : Int
-  mut t : Int//选择(不重置)
-  mut attack : Int
-  mut critRate : Int
-  mut critDamage : Int
-  mut anger : Int
+  mut scores:Scorecount
+  
 }
 
 let game : Game = Game::new()
@@ -58,13 +55,24 @@ pub fn Game::new() -> Game {
     faceIndex:1,
     seed:1234,
     click:0,//0未按下 1左 2下 3右 4上 5z 6x
-
+    hard:0,
+    enemy_move:0,
+    score:[0,0,0,0,0,0],
+    scores:Scorecount::new()
   }
 }
 
+struct Character {
+  mut hp : Int
+  mut t : Int//选择(不重置)
+  mut attack : Int
+  mut critRate : Int
+  mut critDamage : Int
+  mut anger : Int
+}
 pub fn Character::new() -> Character {
   {
-    hp: 100,
+    hp: 200,
     t: 0,
     attack: 10,
     critRate: 10,
@@ -73,11 +81,31 @@ pub fn Character::new() -> Character {
   }
 }
 
+struct Scorecount {
+  mut level_score:Int
+  mut speed:Int//flash
+  mut turn_speed:Int//flash
+  mut max_damage:Int//flash
+  rps_count:Array[Int]//flash
+  mut crit_count:Int//flash
+}
+
+pub fn Scorecount::new() -> Scorecount {
+  {
+    level_score:0,
+    speed:0,
+    turn_speed:0,
+    max_damage:0,
+    rps_count:[0,0,0],
+    crit_count:0,
+  }
+}
+
 //刷新敌人数值
 pub fn refresh_Enemy(self : Game) -> Unit {
   self.enemy = {
       hp: 100,
-      t: 0,
+      t: random_range(1,3),
       attack: 10,
       critRate: 10,
       critDamage: 2,

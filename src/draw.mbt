@@ -1,4 +1,4 @@
-let hp_pos : Array [Int] = [50,50,50]
+let hp_pos : Array [Int] = [50,50,50,50]
 pub fn draw(self : Game) -> Unit {
   self.tick+=1
   fill(0,0,160,160,4)
@@ -77,6 +77,7 @@ pub fn draw(self : Game) -> Unit {
       }
     }
     else{
+    
     @wasm4.set_draw_colors(0,index=4)//半透明硬币
     coin1.draw()
     if coin1.x>108 && coin1.x<156 && game.tick%3==0{
@@ -89,6 +90,7 @@ pub fn draw(self : Game) -> Unit {
       }
     }
     move(coin1,1,self.tick,1)
+
     
     
     @wasm4.set_draw_colors(4,index=4)
@@ -119,18 +121,31 @@ pub fn draw(self : Game) -> Unit {
   else if self.stage==1 || self.stage==2 {//战斗
     i_back2.draw()//敌人
     faces[game.faceIndex].draw()
+    if game.me.t==4 && self.enemy.hp>0{
+      faces[5].draw()
+    }
     @wasm4.set_draw_colors(0,index=4)//半透明火
     for i=0;i<game.level;i=i+1{
       fires[i].draw()
     }
     @wasm4.set_draw_colors(4,index=4)//半透明火
     
-    //我方属性
-    if self.me.hp/2!=hp_pos[0] && self.tick%3==0 && hp_pos[0]>0{
-      hp_pos[0]-=1
+    if self.me.hp<=100{//我方属性
+      if self.me.hp/2<hp_pos[0] && self.tick%3==0 && hp_pos[0]>0{
+        hp_pos[0]-=1
+      }
+      fill(8,81,hp_pos[0],2,1)
+      fill(8,81,self.me.hp/2,2,3)
     }
-    fill(8,81,hp_pos[0],2,1)
-    fill(8,81,self.me.hp/2,2,3)
+    else{
+      if (self.me.hp-100)/2<hp_pos[1] && self.tick%3==0 && hp_pos[1]>0{
+      hp_pos[1]-=1
+      }
+      fill(7,80,hp_pos[1]+2,4,1)
+      fill(7,80,(self.me.hp-100)/2+2,4,2)
+      fill(8,81,50,2,3)
+    }
+    
     for i = 0; i < 5; i = i + 1 {
       fill(10+5*i,73,2,2,2)
       if i<game.me.anger{
@@ -143,17 +158,17 @@ pub fn draw(self : Game) -> Unit {
     
     
     if self.enemy.hp<=100{//敌人属性
-      if self.enemy.hp/2!=hp_pos[1] && self.tick%3==0 && hp_pos[1]>0{
-        hp_pos[1]-=1
+      if self.enemy.hp/2<hp_pos[2] && self.tick%3==0 && hp_pos[2]>0{
+        hp_pos[2]-=1
       }
-      fill(8,4,hp_pos[1],2,1)
+      fill(8,4,hp_pos[2],2,1)
       fill(8,4,self.enemy.hp/2,2,3)
     }
     else{
-      if (self.enemy.hp-100)/2!=hp_pos[2] && self.tick%3==0 && hp_pos[2]>0{
-      hp_pos[2]-=1
+      if (self.enemy.hp-100)/2<hp_pos[3] && self.tick%3==0 && hp_pos[3]>0{
+      hp_pos[3]-=1
       }
-      fill(7,3,hp_pos[2]+2,4,1)
+      fill(7,3,hp_pos[3]+2,4,1)
       fill(7,3,(self.enemy.hp-100)/2+2,4,2)
       fill(8,4,50,2,3)
     }
@@ -233,6 +248,7 @@ pub fn draw(self : Game) -> Unit {
     }
     hhtext.draw()
     if game.stage2_case == 2 {//战败语言
+      @wasm4.text("score:"+(self.scores.level_score).to_string(), 80,0)
       texts[game.level-1].draw()
     }
     damageText.draw()
@@ -388,13 +404,21 @@ pub fn turnReset()-> Unit{
 }
 
 pub fn stageReset(me_hp:Int,enemy_hp:Int)-> Unit{
-  hp_pos[0]=me_hp/2
-  hp_pos[1]=50
-  hp_pos[2]=(enemy_hp-100)/2
+  hp_pos[0]=50
+  hp_pos[1]=(me_hp-100)/2
+  hp_pos[2]=50
+  hp_pos[3]=(enemy_hp-100)/2
 }
 
 pub fn set_damage(damage:Int,crited:Bool) -> Unit{
-  damageText.set_fall2((-damage).to_string(),72,40,-1,0.5*(game.fw).to_double(),0)
+  let mut zc:Int=0
+  if mycoins.wf==2{
+    zc=-1
+  }
+  else{
+    zc=game.fw
+  }
+  damageText.set_fall2((-damage).to_string(),72,40,-1,0.5*zc.to_double(),0)
   if crited==true{
     critText.set_fall2("Crit!!",72,40,random_range(-3,3).to_double()/8,-1,0.02)
   }
