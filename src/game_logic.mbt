@@ -4,7 +4,9 @@ pub fn srp(self : Game) -> Unit {
     self.click=0
   }
   if self.stuck == 0 {
-    if self.stage == -1 {
+    if self.stage==-2{
+      self.switch_fromf2()
+    } else if self.stage == -1 {
       self.switch_fromf1()
     } else if self.stage == 0 {
       self.switch_from0()
@@ -35,6 +37,58 @@ pub fn initialize(self : Game) -> Unit {
 }
 
 //结束stage0后case是否归0: 是
+pub fn switch_fromf2(self : Game) -> Unit {
+  if self.click==5 {
+      self.stage = 0 
+      self.stage0_case=0
+      }
+  else{
+    self.setting.sets(self.click)
+  }
+}
+
+pub fn sets(self:Setting,click:Int) -> Unit{
+  if click==2{
+    self.select+=1
+    if self.select>1{
+      self.select=1
+    }
+  }
+  else if click==4{
+    self.select-=1
+    if self.select<0{
+      self.select=0
+    }
+  }
+  else if click==1{
+    if self.select==0{
+      self.volumn-=10
+      if self.volumn<0{
+      self.volumn=0
+      }
+    }
+    if self.select==1{
+      self.difficulty-=1
+      if self.difficulty<0{
+      self.difficulty=0
+    }
+    }
+  }
+  else if click==3{
+    if self.select==0{
+      self.volumn+=10
+      if self.volumn>100{
+      self.volumn=100
+      }
+    }
+    if self.select==1{
+      self.difficulty+=1
+      if self.difficulty>3{
+      self.difficulty=3
+    }
+    }
+  }
+}
 pub fn switch_fromf1(self : Game) -> Unit {
   if self.click!=0 {
       self.stage = 0 
@@ -45,11 +99,7 @@ pub fn switch_from0(self : Game) -> Unit {
   if self.stage0_case == 0 {
     self.switch_from00() //跳转逻辑
   } else if self.stage0_case == 1 {
-    //self.logic_set() //
-    //self.switch_to00() //
-    //self.logic_exit()
-    self.stage = 0
-    self.stage0_case = 0
+    self.stage=-2
   } else if self.stage0_case == 2 { //***开始游戏***
     self.hh=0
     self.stage=1
@@ -65,6 +115,16 @@ pub fn switch_from1(self : Game) -> Unit {
   if self.stage1_case == 0 {
     if (self.hh==0){self.prepare()}
     self.hh+=1
+    if self.setting.difficulty==2{
+      if self.hh%8==0{
+        self.enemy_move=random_range(0,5)
+        }
+    }
+    else if self.setting.difficulty==3{
+      if self.hh%5==0{
+        self.enemy_move=random_range(0,5)
+        }
+    }
     turnReset()
     self.scores.speed+=self.scores.turn_speed
     self.scores.turn_speed=300
@@ -75,7 +135,7 @@ pub fn switch_from1(self : Game) -> Unit {
       if zc>self.scores.max_damage{
         self.scores.max_damage=zc
       }
-      set_damage(zc,false)
+      set_damage(zc,false,-1)
     }
     
     self.get_enemyMove()
@@ -141,9 +201,20 @@ pub fn getscore(self:Game) -> Int{
   num+=self.scores.rps_count[0]*20
   num+=self.scores.rps_count[1]*15
   num+=self.scores.rps_count[2]*10
-  num+=(self.scores.crit_count*500)/self.win_count
-  //let zc:Double=(num*self.level).to_double()*0.1
-  //num+=(zc).to_int()
+  if self.win_count>0{
+    num+=(self.scores.crit_count*500)/self.win_count
+  }
+  num+=(num*self.level*10)/100
+  if self.setting.difficulty==1{
+    num*=6/5
+  }
+  else if self.setting.difficulty==2{
+    num*=4/3
+  }
+  else if self.setting.difficulty==3{
+    num*=2
+  }
+  
   return num
 }
 
@@ -219,7 +290,7 @@ pub fn round_outcome(self : Game) -> Unit {
     self.fw = 0 //平局
     self.enemy.hp -= 5
     self.me.hp -= 5
-    set_damage(5,false)
+    set_damage(5,false,0)
   } else if enWin==-1 {
     self.fw = -1 //敌人失败
     let zc = self.me.dam_calculate(self.enemy,true)
@@ -234,9 +305,8 @@ pub fn round_outcome(self : Game) -> Unit {
     if self.level>=5{
       self.me.anger(-1)
     }
-    if self.level>=4{
-      self.win_count+=1
-    }
+    self.win_count+=1
+    
   } else if enWin==1{
     self.fw = 1 //敌人胜利
     self.me.hp -= self.enemy.dam_calculate(self.me,false)
@@ -329,7 +399,7 @@ pub fn dam_calculate(self : Character,other:Character,id:Bool) -> Int {
   let mut zc_crit_damage = self.critDamage
   let mut crited:Bool=false
   let mut anger_per:Int=1
-  if game.hard>=2{
+  if game.setting.difficulty>0{
     anger_per=2
   }
   if self.anger > 0 {
@@ -361,6 +431,6 @@ pub fn dam_calculate(self : Character,other:Character,id:Bool) -> Int {
     damage-=other.anger
   }
 
-  set_damage(damage,crited)
+  set_damage(damage,crited,game.fw)
   return damage
 }

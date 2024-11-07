@@ -68,8 +68,83 @@ let text6 : StoryTexts = StoryTexts::{
   part : "",
   }
 
+struct SetTexts{
+  x:Int
+  y:Int
+  text:String
+  dx:Int
+  id:Int
+}
 
+pub fn draw(self : SetTexts,value:String,select:Int) -> Unit {
+  if select!=self.id{
+    @wasm4.set_draw_colors(0,index=2)
+    @wasm4.set_draw_colors(2,index=1)
+  }
+  @wasm4.text(self.text,self.x,self.y)
+  @wasm4.text(value,self.x+self.dx,self.y)
+  @wasm4.set_draw_colors(2,index=2)
+  @wasm4.set_draw_colors(1,index=1)
+}
 
+let set1 : SetTexts = SetTexts::{
+  x:0,
+  y:15,
+  text:"Volumn",
+  dx:135,
+  id:0
+}
+let set2 : SetTexts = SetTexts::{
+  x:0,
+  y:30,
+  text:"Difficult:",
+  dx:80,
+  id:1
+}
+
+let score1: SetTexts = SetTexts::{
+  x:0,
+  y:70,
+  text:"Level 1",
+  dx:100,
+  id:2
+}
+let score2: SetTexts = SetTexts::{
+  x:0,
+  y:85,
+  text:"Level 2",
+  dx:100,
+  id:2
+}
+let score3: SetTexts = SetTexts::{
+  x:0,
+  y:100,
+  text:"Level 3",
+  dx:100,
+  id:2
+}
+let score4: SetTexts = SetTexts::{
+  x:0,
+  y:115,
+  text:"Level 4",
+  dx:100,
+  id:2
+}
+let score5: SetTexts = SetTexts::{
+  x:0,
+  y:130,
+  text:"Level 5",
+  dx:100,
+  id:2
+}
+let score6: SetTexts = SetTexts::{
+  x:0,
+  y:145,
+  text:"Level 6",
+  dx:100,
+  id:2
+}
+let hscore:Array[SetTexts]=[score1,score2,score3,score4,score5,score6]
 
 struct Texts{
   mut x:Int
@@ -83,6 +158,11 @@ pub fn draw(self : Texts) -> Unit {
   }
 }
 
+let setshow : Texts = Texts::{
+  x:0,
+  y:0,
+  text:"press X to exit"
+}
 let turnText : Texts = Texts::{
   x:50,
   y:38,

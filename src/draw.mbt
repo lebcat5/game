@@ -1,8 +1,17 @@
-let hp_pos : Array [Int] = [50,50,50,50]
+let hp_pos : Array [Int] = [50,50,50,50,0]
+let name: Array[String]=["Easy","Normol","Hard","Impossible"]
 pub fn draw(self : Game) -> Unit {
   self.tick+=1
   fill(0,0,160,160,4)
-  if self.stage==-1 {//初始界面
+  if self.stage==-2 {//设置界面
+    setshow.draw()
+    set1.draw(self.setting.volumn.to_string(),self.setting.select)
+    set2.draw(name[self.setting.difficulty],self.setting.select)
+    for i=0;i<6;i=i+1{
+      hscore[i].draw(self.score[i].to_string(),self.setting.select)
+    }
+    }
+  else if self.stage==-1 {//初始界面
     i_back_up.draw()
     i_back_down.draw()
     @wasm4.set_draw_colors(0,index=1)//半透明云朵
@@ -54,7 +63,7 @@ pub fn draw(self : Game) -> Unit {
     }
     }
     
-  if self.stage==0{
+  else if self.stage==0{
     i_back_up.draw()
     i_back_down.draw()
     @wasm4.set_draw_colors(0,index=1)//半透明云朵
@@ -164,12 +173,21 @@ pub fn draw(self : Game) -> Unit {
       fill(8,4,hp_pos[2],2,1)
       fill(8,4,self.enemy.hp/2,2,3)
     }
-    else{
+    else if self.enemy.hp<=200{
       if (self.enemy.hp-100)/2<hp_pos[3] && self.tick%3==0 && hp_pos[3]>0{
       hp_pos[3]-=1
       }
       fill(7,3,hp_pos[3]+2,4,1)
       fill(7,3,(self.enemy.hp-100)/2+2,4,2)
+      fill(8,4,50,2,3)
+    }
+    else{
+      if (self.enemy.hp-200)/2<hp_pos[4] && self.tick%3==0 && hp_pos[4]>0{
+      hp_pos[4]-=1
+      }
+      fill(7,3,hp_pos[4]+2,4,1)
+      fill(7,3,50,4,2)
+      fill(7,3,(self.enemy.hp-200)/2+2,4,1)
       fill(8,4,50,2,3)
     }
     
@@ -407,18 +425,19 @@ pub fn stageReset(me_hp:Int,enemy_hp:Int)-> Unit{
   hp_pos[0]=50
   hp_pos[1]=(me_hp-100)/2
   hp_pos[2]=50
-  hp_pos[3]=(enemy_hp-100)/2
-}
-
-pub fn set_damage(damage:Int,crited:Bool) -> Unit{
-  let mut zc:Int=0
-  if mycoins.wf==2{
-    zc=-1
+  if enemy_hp<=200{
+    hp_pos[3]=(enemy_hp-100)/2
   }
   else{
-    zc=game.fw
+    hp_pos[3]=50
+    hp_pos[4]=(enemy_hp-200)/2
   }
-  damageText.set_fall2((-damage).to_string(),72,40,-1,0.5*zc.to_double(),0)
+  
+  
+}
+
+pub fn set_damage(damage:Int,crited:Bool,wf:Int) -> Unit{
+  damageText.set_fall2((-damage).to_string(),72,40,-1,0.5*wf.to_double(),0)
   if crited==true{
     critText.set_fall2("Crit!!",72,40,random_range(-3,3).to_double()/8,-1,0.02)
   }

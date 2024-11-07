@@ -24,12 +24,12 @@ struct Game {
 
   mut click:Int 
 
-  mut hard:Int
   mut enemy_move:Int
 
   score:Array[Int]
 
   mut scores:Scorecount
+  setting:Setting
   
 }
 
@@ -55,10 +55,22 @@ pub fn Game::new() -> Game {
     faceIndex:1,
     seed:1234,
     click:0,//0未按下 1左 2下 3右 4上 5z 6x
-    hard:0,
     enemy_move:0,
     score:[0,0,0,0,0,0],
-    scores:Scorecount::new()
+    scores:Scorecount::new(),
+    setting:Setting::new()
+  }
+}
+struct Setting{
+  mut volumn:UInt
+  mut difficulty:Int
+  mut select:Int
+}
+pub fn Setting::new() -> Setting {
+  {
+  volumn:100,
+  difficulty:0,
+  select:0
   }
 }
 
@@ -112,6 +124,15 @@ pub fn refresh_Enemy(self : Game) -> Unit {
       anger: 0,
     }
   self.enemy.hp=100+self.level*20
+  if self.setting.difficulty==1{
+    self.enemy.hp+=20
+  }
+  if self.setting.difficulty==2{
+    self.enemy.hp+=50
+  }
+  if self.setting.difficulty==3{
+    self.enemy.hp+=100
+  }
 }
 
 

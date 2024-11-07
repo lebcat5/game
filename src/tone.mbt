@@ -39,19 +39,18 @@ let back4 : Array[UInt] = [
 ]
 
 pub fn music(self : Game) -> Unit {
-  music_back(self.index) //检测音效优先
+  music_back(self.index,self.setting.volumn) //检测音效优先
 }
 
-fn music_back(index : Int) -> Unit {
+fn music_back(index : Int,volumn:UInt) -> Unit {
   if game.tick % 6 != 0 {
       return
     }
-    
     if back1[index] != 0 {
       @wasm4.tone(
         (back1[index], 0),
         @wasm4.ADSR::new(40, release=15, decay=0, attack=0),
-        @wasm4.ADSRVolume::new(100, peak=100),
+        @wasm4.ADSRVolume::new(volumn, peak=100),
         @wasm4.ToneFlag::new(channel=Pulse1, mode=Duty_1_8, pan=Center),
       )
     }
@@ -59,7 +58,7 @@ fn music_back(index : Int) -> Unit {
       @wasm4.tone(
         (back2[index], 0),
         @wasm4.ADSR::new(5, release=15, decay=0, attack=0),
-        @wasm4.ADSRVolume::new(100, peak=100),
+        @wasm4.ADSRVolume::new(volumn, peak=100),
         @wasm4.ToneFlag::new(channel=Pulse2, mode=Duty_1_8, pan=Center),
       )
     }
@@ -67,7 +66,7 @@ fn music_back(index : Int) -> Unit {
       @wasm4.tone(
         (back3[index], 0),
         @wasm4.ADSR::new(20, release=15, decay=0, attack=10),
-        @wasm4.ADSRVolume::new(100, peak=100),
+        @wasm4.ADSRVolume::new(volumn, peak=100),
         @wasm4.ToneFlag::new(channel=Triangle, mode=Duty_1_8, pan=Center),
       )
     }
@@ -75,7 +74,7 @@ fn music_back(index : Int) -> Unit {
       @wasm4.tone(
         (back4[index], 0),
         @wasm4.ADSR::new(5, release=15, decay=0, attack=0),
-        @wasm4.ADSRVolume::new(100, peak=100),
+        @wasm4.ADSRVolume::new(volumn, peak=100),
         @wasm4.ToneFlag::new(channel=Noise, mode=Duty_1_8, pan=Center),
       )
     
