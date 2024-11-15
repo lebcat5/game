@@ -18,7 +18,8 @@ pub fn switch_to1(self : Game) -> Unit {
     self.stage = 1
     self.stage1_case = 0
     self.stage2_case = 0
-    if self.level == 6{
+    if self.complete==true{
+    self.complete=false
     self.stage = -1
     self.level = 0
   } 

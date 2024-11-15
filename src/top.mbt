@@ -7,8 +7,6 @@ pub fn start() -> Unit {
   @wasm4.set_draw_colors(2,index=2)
   @wasm4.set_draw_colors(3,index=3)
   @wasm4.set_draw_colors(4,index=4)
-  
-  
 }
 pub fn update() -> Unit {
   game.click()
@@ -59,7 +57,7 @@ pub fn click(self:Game) -> Unit{
   //有键按下
   if self.click_awa!=zc{//刚刚按下
     self.click_awa=zc
-    music_button()
+    music_button(self.setting.volumn)
   } 
 
 }

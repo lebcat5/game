@@ -30,6 +30,7 @@ struct Game {
 
   mut scores:Scorecount
   setting:Setting
+  mut complete:Bool
   
 }
 
@@ -58,7 +59,8 @@ pub fn Game::new() -> Game {
     enemy_move:0,
     score:[0,0,0,0,0,0],
     scores:Scorecount::new(),
-    setting:Setting::new()
+    setting:Setting::new(),
+    complete:false,
   }
 }
 struct Setting{

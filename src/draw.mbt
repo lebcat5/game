@@ -134,6 +134,7 @@ pub fn draw(self : Game) -> Unit {
       faces[5].draw()
     }
     @wasm4.set_draw_colors(0,index=4)//半透明火
+
     for i=0;i<game.level;i=i+1{
       fires[i].draw()
     }
@@ -178,7 +179,7 @@ pub fn draw(self : Game) -> Unit {
       hp_pos[3]-=1
       }
       fill(7,3,hp_pos[3]+2,4,1)
-      fill(7,3,(self.enemy.hp-100)/2+2,4,2)
+      fill(7,3,(self.enemy.hp-100)/2+3,4,2)
       fill(8,4,50,2,3)
     }
     else{
@@ -187,7 +188,7 @@ pub fn draw(self : Game) -> Unit {
       }
       fill(7,3,hp_pos[4]+2,4,1)
       fill(7,3,50,4,2)
-      fill(7,3,(self.enemy.hp-200)/2+2,4,1)
+      fill(7,3,(self.enemy.hp-200)/2+3,4,1)
       fill(8,4,50,2,3)
     }
     
@@ -267,7 +268,13 @@ pub fn draw(self : Game) -> Unit {
     hhtext.draw()
     if game.stage2_case == 2 {//战败语言
       @wasm4.text("score:"+(self.scores.level_score).to_string(), 80,0)
-      texts[game.level-1].draw()
+      if game.complete==false{
+        texts[game.level-1].draw()
+      }
+      else{
+        texts[5].draw()
+      }
+      
     }
     damageText.draw()
     critText.draw()
@@ -417,7 +424,13 @@ pub fn turnReset()-> Unit{
   game.faceIndex=0
   turnText.text=""
   hhtext.x=-50
-  hhtext.text="turn"+game.hh.to_string()
+  if game.hh!=1{
+    hhtext.text="turn"+game.hh.to_string()
+  }
+  else{
+    hhtext.text="level "+(game.level+1).to_string()
+  }
+  
   
 }
 

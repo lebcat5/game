@@ -166,7 +166,7 @@ pub fn switch_from1(self : Game) -> Unit {
 //结束stage2后case是否归0：是
 pub fn switch_from2(self : Game) -> Unit {
   if self.stage2_case == 0 {
-    if self.level<=5{
+    if self.level<5{
       falling.set_fall(self.level+1,72,14,-0.54+0.27*(self.level).to_double(),-0.5)
       self.stuck= 120
     }
@@ -178,13 +178,20 @@ pub fn switch_from2(self : Game) -> Unit {
     if self.scores.level_score>self.score[self.level]{
       self.score[self.level]=self.scores.level_score
     }
-    self.level +=1
     
+    if self.level<5{
+      self.level +=1
+    }
+    else{
+      self.complete=true
+    }
     self.stage2_case = 2
     
 
   } else if self.stage2_case == 2 {//显示分数
     self.hh=0
+    
+    
     
     self.switch_to1()
   }
@@ -325,10 +332,10 @@ pub fn round_outcome(self : Game) -> Unit {
 }
 
 pub fn hp_detect(self : Game) -> Unit {
-  if self.enemy.hp == 0 { //***敌人死亡***
+  if self.enemy.hp <= 0 { //***敌人死亡***
     winAndFail(-2)
     self.switch_to2()
-  } else if self.me.hp == 0 { //***角色死亡***
+  } else if self.me.hp <= 0 { //***角色死亡***
     winAndFail(2)
     self.switch_to14()
   } else {

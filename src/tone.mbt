@@ -86,11 +86,11 @@ fn music_back(index : Int,volumn:UInt) -> Unit {
   
 }
 
-fn music_button() -> Unit {
+fn music_button(volumn:UInt) -> Unit {
     @wasm4.tone(
     (500, 480),
     @wasm4.ADSR::new(2, release=1, decay=1, attack=0),
-    @wasm4.ADSRVolume::new(100, peak=100),
+    @wasm4.ADSRVolume::new(volumn, peak=100),
     @wasm4.ToneFlag::new(channel=Triangle, mode=Duty_1_2, pan=Center),
   )
 }
